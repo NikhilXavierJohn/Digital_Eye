@@ -11,22 +11,14 @@
 
 
     <title>Digital Eye</title>
-
-    <!-- Bootstrap core CSS -->
     <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Custom fonts for this template -->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
-
-    <!-- Custom styles for this template -->
-    <link href="css/grayscale.css" rel="stylesheet">
+    <link href="css/grayscale.min.css" rel="stylesheet">
   </head>
 
   <body id="page-top">
-
-    <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-light fixed-top" id="mainNav">
       <div class="container">
         <a class="navbar-brand js-scroll-trigger" href="#page-top">DIGITAL EYE</a>
@@ -143,17 +135,17 @@
             <form class="form-inline d-flex">
               <!-- <input type="email" class="form-control flex-fill mr-0 mr-sm-2 mb-3 mb-sm-0" id="inputEmail" placeholder="Upload Images"> -->
               <input type="text" class="form-control flex-fill mr-0 mr-sm-2 mb-3 mb-sm-0" id="firsttname"
-               placeholder="Enter Persons First Name">
+               placeholder="First Name">
               <input type="text" class="form-control flex-fill mr-0 mr-sm-2 mb-3 mb-sm-0" id="lasttname" 
-              placeholder="Enter Persons Last Name" >
+              placeholder="Last Name" >
               <br>
               <br>
               <input type="tel" class="form-control flex-fill mr-0 mr-sm-2 mb-3 mb-sm-0" id="PhoneNum" 
-              placeholder="Enter Phone Number " >
+              placeholder="Phone Number " >
               <br>
               <br>
               <br>
-              <input type="file" multiple value ="Upload" class="btn btn-primary1 mx-auto" id="uploader" >
+              <input type="file" multiple value ="Upload" class="form-control btn btn-primary1 mx-auto" id="uploader" >
             </form>
             <br>
             <br>
@@ -161,6 +153,8 @@
             <div class="progress" style="height: 3px;">
               <div class="progress-bar" id="progress" role="progressbar" style="width: 0%;background-color: #64a19d" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
             </div>
+            <br>
+            <a href="https://digitaleye.ml" class="btn btn-primarytop">Done</a>
           </div>
         </div>
       </div>
@@ -226,9 +220,9 @@
     <!-- Footer -->
     <footer class="bg-black small text-center text-white-50">
       <div class="container">
-        <img src="img/icongray3.png" style="border-radius: 35px">
+        <img src="img/icongray3.png" style="border-radius: 35px; height:100px;width: 100px">
         <br>
-        Copyright &copy; Digital Eye &reg;
+        Copyright &copy; Digital Eye &reg;<br> ~ Created By Nikhil Xavier John & A.Purushothaman
       </div>
     </footer>
 
@@ -244,15 +238,17 @@
     <script src="https://www.gstatic.com/firebasejs/5.5.0/firebase.js"></script>
     <script>
       // Initialize Firebase
+      // var serviceAccount = require("digital-eye-7d626-firebase-adminsdk-2r2ui-6f90986708.json");
       var config = {
-        apiKey: "AIzaSyABJKCA7f_o6Nvm3LD_ziHwR_8A0ZAmork",
-        authDomain: "digital-eye-7d626.firebaseapp.com",
-        databaseURL: "https://digital-eye-7d626.firebaseio.com",
-        projectId: "digital-eye-7d626",
-        storageBucket: "digital-eye-7d626.appspot.com",
-        messagingSenderId: "555085346642"
-      };
-      firebase.initializeApp(config);
+	    apiKey: "AIzaSyABJKCA7f_o6Nvm3LD_ziHwR_8A0ZAmork",
+	    authDomain: "digital-eye-7d626.firebaseapp.com",
+	    databaseURL: "https://digital-eye-7d626.firebaseio.com",
+	    projectId: "digital-eye-7d626",
+	    storageBucket: "digital-eye-7d626.appspot.com",
+	    messagingSenderId: "555085346642"
+	  };
+	  firebase.initializeApp(config);
+      //var admin = require("firebase-admin");
       var fileButton=document.getElementById("uploader");
       var Pname1 = document.getElementById("firsttname");
       var Pname2 = document.getElementById("lasttname");
@@ -260,50 +256,57 @@
       
       fileButton.addEventListener('change', function(e){ 
       	var database = firebase.database();
+
         var date =new Date();
         var timestamp = date.getTime();
-        writeUserData(Pname1,Pname2,contact,timestamp);
-
-        function writeUserData(Pname1, Pname2, contact,timestamp) {
-        	var name=Pname1.value+Pname2.value;
-        	var cont=contact.value;
-				firebase.database().ref('users/' + name).set({
-			username: name,
-			contact:cont,
-			time:timestamp
-			 });
-			}
-        //Get files
+        
+        // console.log(imagename);
+        var name=Pname1.value+"_"+Pname2.value;
+        writeUserData(Pname1,Pname2,contact,timestamp,imageFile);
+        function writeUserData(Pname1, Pname2, contact,timestamp,imageFile) {
+                  var name=Pname1.value+"_"+Pname2.value;
+                  var cont=contact.value;
+                  firebase.database().ref('users/'+name).set({
+                  username: name,
+                  contact:cont,
+                  time:timestamp
+                  });  
+              }
         for (var i = 0; i < e.target.files.length; i++) {
             var imageFile = e.target.files[i];
-
-            uploadImageAsPromise(imageFile);
+            var name=Pname1.value+"_"+Pname2.value;
+            uploadImageAsPromise(imageFile,i);
+            
         }
+        alert("We'll find them for you");
+        
     });
+    
+    function uploadImageAsPromise (imageFile,i) {
+      return new Promise(function (resolve, reject) {
+      	// alert("We'll Catch up to you once we find him/her");
+        var storageRef = firebase.storage().ref("database/"+imageFile.name);
+        var task = storageRef.put(imageFile);
+        task.on('state_changed',function progress(snapshot){
+                var progress=document.getElementById("progress");
 
-    //Handle waiting to upload each file using promise
-    function uploadImageAsPromise (imageFile) {
-        return new Promise(function (resolve, reject) {
-            var storageRef = firebase.storage().ref("database/"+Pname1.value+"_"+Pname2.value+"/"+imageFile.name);
-            //Upload file
-
-            var task = storageRef.put(imageFile);
-
-            //Update progress bar
-            task.on('state_changed',function progress(snapshot){
-                    var progress=document.getElementById("progress");
-                    var percentage = snapshot.bytesTransferred / snapshot.totalBytes * 100;
-                    progress.style.width = percentage+"%";
-                },
-            function error(err){
-               alert("An Error has Occured");
-             },
-                function complete(){
-                    var downloadURL = task.snapshot.downloadURL;
-                }
-            );
+                var percentage = snapshot.bytesTransferred / snapshot.totalBytes * 100;
+                progress.style.width = percentage+"%";
+            },
+          function error(err){
+             alert("An Error has Occured");
+           },
+          function complete(){
+            var name=Pname1.value+"_"+Pname2.value;
+            var imagename=imageFile.name;
+            firebase.database().ref('users/'+name+"/images/"+i).set({
+            images:imagename
+            });    
+          });
         });
     }
+    
+    
     </script>
   </body>
 </html>
